@@ -1,0 +1,22 @@
+---
+- name: Deploy DevSecureOps container
+  hosts: app_servers
+  become: false
+  tasks:
+    - name: Build image from project Dockerfile
+      community.docker.docker_image:
+        name: devsecureops
+        tag: "1.0"
+        source: build
+        build:
+          path: "{{ playbook_dir }}/.."
+        force_source: true
+
+    - name: Run application container
+      community.docker.docker_container:
+        name: devsecureops-app
+        image: "devsecureops:1.0"
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - "8080:8080"
